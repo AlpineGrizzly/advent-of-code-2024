@@ -11,14 +11,16 @@ void resetArray(int arr[]) {
     }
 }
 
-int isSafe(int nums[]) { 
+int isSafe(int nums[], int array_size, int recurse) { 
     int increase = 0;
     int safe = 1;
     int delta;
+    int problems2dampen = 0;
+    int problem_node = 0; // store index of last unsafe node
 
     printf("*%d* ", nums[0]);
     // If all levels are (all increase or all decrease) && (any two adjacent levels differ by 1 <= x <= 3) == safe
-    for (int i = 1; i < MAX_LINE_SIZE && nums[i]; i++) { 
+    for (int i = 1; i < array_size && nums[i]; i++) { 
         delta = nums[i] - nums[i-1];
         if (i == 1) { 
             // Set our pattern
@@ -33,13 +35,41 @@ int isSafe(int nums[]) {
         if (delta*increase > 0 && ((abs(delta) >= 1 && abs(delta) <= 3))) { 
             printf("[%d] ", nums[i]);
         } else { 
-            printf("!%d! %d %d", nums[i], delta, increase);
-            return 0;
+            printf("!%d! ", nums[i]);
+            problem_node = i;
+            problems2dampen++;
+            safe = 0;
         }
     }
 
-    return safe;
+    // Check if removing the problem node would help
+    printf("#%d-%d# ", problems2dampen, recurse);
 
+    if (problems2dampen == 1 && recurse == 1) {
+        // Check if removing the problem node would help 
+        printf("\nREFACTOR? %d -- > ", problem_node);
+        int clone_arr[MAX_LINE_SIZE-1]= {0};
+        int idx_delta = 0;
+        for (int i = 0; i < array_size && idx_delta < array_size-1; i++) {
+            if (nums[i] == 0) { // end of array
+                break;
+            } else if (i == problem_node) { 
+                continue;
+            }
+
+            clone_arr[idx_delta] = nums[i];
+            printf("%d ", clone_arr[idx_delta]);
+            idx_delta++;
+        }
+        printf("\n");
+        // Try again? 
+        if (isSafe(clone_arr, array_size-1, 0)) { 
+            return 1;
+        }
+        return 0;
+    }
+
+    return safe;
 }
 
 int main() { 
@@ -69,7 +99,7 @@ int main() {
         }
 
         // Determine if safe
-        if (isSafe(numbers)) {
+        if (isSafe(numbers,MAX_LINE_SIZE, 1)) {
             printf("Safe!\n");
             num_safe++;
         } else { 
