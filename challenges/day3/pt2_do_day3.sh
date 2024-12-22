@@ -12,8 +12,7 @@ shopt -s lastpipe
 ## Calculate all sums within a don't --> do boundary
 sum_dont=0
 sum=0
-
-grep -oP "(?<=don't\(\))(.+?)(?=\s*do\(\))" input.txt | grep -oP 'mul\([0-9]+,[0-9]+\)' | while IFS= read eq; do
+grep -oP "(?<=don't\(\))(.+e?)(?=\s*do\(\))" input.txt | grep -oP 'mul\([0-9]+,[0-9]+\)' | while IFS= read eq; do
 	call_func="${eq//[(,)]/ }"
 	value=$(eval $call_func)
 	sum_dont=$(($sum_dont + $value))
