@@ -1,58 +1,138 @@
+import sys
+
+def print_debug_arr(arr):
+    for y in range(0, len(arr)):
+        for x in range(0, len(arr[0])):
+            print(arr[y][x], end="")
+        print("")
+
+def print_array(array, x, y, word2find):
+        print(array[y][x:x+len(word2find)])
+        print(array[y+1][x:x+len(word2find)])
+        print(array[y+2][x:x+len(word2find)])
+        print(array[y+3][x:x+len(word2find)])
+
 def get_xmas_count(array):
     '''
     Get number of times XMAS appears in a 2d string array
     '''
     word2find = "XMAS"
     count = 0
+    
+    print("Array length %dx%d" % (len(array[0]), len(array)))
 
+    x_max = len(array[0])-len(word2find)
+    y_max = len(array)-len(word2find)
+    
+
+    print("iterating %dx%d" % (x_max, y_max))
     # Iterate through array by increments of len(word2find) to ensure repeats arent counted
-    for x in range(0, len(array[0])-len(word2find)+1):
-        for y in range(0, len(array)-len(word2find)+1):
-            for m in range(0, len(word2find)): 
-                # Get row and column values 
-                row = array[x+m][y:y+len(word2find)]
-                col = array[x][y+m] + array[x+1][y+m] + array[x+2][y+m] + array[x+3][y+m]
-                
-                # Check row and col forward and reversed
+    debug_arr = [["."] * len(array[0]) for _ in range(len(array))]
+    for y in range(0, y_max+1):
+        for x in range(0, x_max+1):
+            print("-----------Pre-check---------------")
+            print_array(array, x, y, word2find)
+            print("----------------------------------") 
+
+            # Check rows
+            for r in range(0, len(word2find)):
+                row = array[y+r][x:x+len(word2find)]
+                print("--row-> ", row) 
                 if row == word2find or row[::-1] == word2find:
-                    print("Found row ", row)
-                    count += 1
+                    find_count = 0 
+                    for n in range(0, len(row)):
+                        if debug_arr[y+r][x+n] == ".":
+                            debug_arr[y+r][x+n] = row[n]
+                        else:
+                            find_count += 1
+                    if find_count != len(word2find):
+                        print("Found row %dx%d %s" % (y+r, x, row))
+                        count += 1
+                    else:
+                        print("Already found row %dx%d %s" % (y+r, x, row))
+
+            # Check columns
+            for c in range(0, len(word2find)): 
+                col = array[y][x+c] + array[y+1][x+c] + array[y+2][x+c] + array[y+3][x+c]
+                print("--col-> ", col) 
                 if col == word2find or col[::-1] == word2find:
-                    print("Found col ", col)
-                    count += 1
+                    find_count = 0
+                    for n in range(0, len(col)):
+                        if debug_arr[y+n][x+c] == ".":
+                            debug_arr[y+n][x+c] = col[n]
+                        else:
+                            find_count += 1
+                    if find_count != len(word2find):
+                        print("Found col %dx%d %s" % (y, x+c, col))
+                        count += 1
+                    else:
+                        print("Already found col %dx%d %s" % (y, x+c, col))
  
-            # Check all both verticals 
-            # Get vertical
+            # Check left and right verticals
             left_vert, right_vert = "", ""
             for n in range(0, len(word2find)):
-                left_vert += array[x+n][y+n]
-                right_vert += array[x+len(word2find)-1-n][y+n]
+                left_vert += array[y+n][x+n]
+                right_vert += array[y+len(word2find)-1-n][x+n]
            
+            print("--lv-> ", left_vert) 
             if left_vert == word2find or left_vert[::-1] == word2find:
-                print("Found lv ", left_vert)
+                # Check if its already been counted
+                #find_count = 0 # if we hit 4, its already been counted
+                for t in range(0, len(left_vert)):
+                    if debug_arr[y+t][x+t] == ".": 
+                        debug_arr[y+t][x+t] = left_vert[t]
+                #    else: 
+                #        find_count += 1
+                #if find_count == len(word2find):
+                print("Found lv %dx%d %s" % (y+t, x+t, left_vert))
                 count += 1
+                #else:
+                #    print("Already Found lv %dx%d %s" % (y+t, x+t, left_vert))
+             
+            print("--rv-> ", right_vert) 
             if right_vert == word2find or right_vert[::-1] == word2find:
-                print("Found rv ", right_vert)
+                #find_count = 0 
+                for s in range(0, len(right_vert)):
+                    if debug_arr[y+len(word2find)-1-s][x+s] == ".":
+                         debug_arr[y+len(word2find)-1-s][x+s] = right_vert[s]
+                #    else:
+                #        find_count += 1
+                #if find_count == len(word2find):
+                print("Found rv %dx%d %s" % (y+len(word2find)-1-s, x+s, left_vert))
                 count += 1
-
-            print("-----------REAL ---------------")
-            print(array[x][y:y+len(word2find)])
-            print(array[x+1][y:y+len(word2find)])
-            print(array[x+2][y:y+len(word2find)])
-            print(array[x+3][y:y+len(word2find)])
-            print("-------------------------------")
-            print("")
+                #else:
+                #    print("Already found rv %dx%d %s" % (y+len(word2find)-1-s, x+s, left_vert))
     
+    print("-----------DEBUG ARR---------------")
+    print_debug_arr(array)
+    print("")
+    print_debug_arr(debug_arr)
+    print("----------------------------------") 
+    print("")
     return count
 
 def main():
-    search_box = []
- 
+    input_file = sys.argv[1]
+    input_arr = [] 
+    
+    print("File selected is ", input_file)
     # Get number of lines in the input file and create two arrays of that sizes
-    with open("small_test_input.txt", "r") as file:
+    
+    with open(input_file, "r") as file:
         for line in file:
-            search_box.append(line.rstrip('\n'))
-
+            input_arr.append(line.rstrip('\n'))
+            print(line.rstrip('\n'))
+    
+    search_box = [["."] * len(input_arr[0]) for _ in range(len(input_arr))]
+    search_box = input_arr
+    #for y in range(0, len(input_arr)):
+    #    for x in range(0, len(input_arr[0])):
+    #        search_box = input_arr
+    print("\n")
+    for y in range(0, len(search_box)):
+        for x in range(0, len(search_box[0])):
+            print(search_box[y][x], end="")
+        print("")
     print("Xmas count is ", get_xmas_count(search_box))        
 
 if __name__ == '__main__':
