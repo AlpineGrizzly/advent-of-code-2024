@@ -7,10 +7,48 @@ def print_debug_arr(arr):
         print("")
 
 def print_array(array, x, y, word2find):
-        print(array[y][x:x+len(word2find)])
-        print(array[y+1][x:x+len(word2find)])
-        print(array[y+2][x:x+len(word2find)])
-        print(array[y+3][x:x+len(word2find)])
+        for i in range(0, len(word2find)):
+            print(array[y+i][x:x+len(word2find)])
+
+def get_xmas_count_pt2(array):
+    '''
+    Get number of time a pair of X-MAS appear
+    '''
+    count = 0
+    word2find = "MAS"
+
+    print("Array length %dx%d" % (len(array[0]), len(array)))
+
+    x_max = len(array[0])-len(word2find)
+    y_max = len(array)-len(word2find)
+    
+    # Iterate through array len(set2find) times at a time and compare arrays
+    for y in range(0, y_max+1):
+        for x in range(0, x_max+1):            
+            print("-----------Pre-check---------------")
+            print_array(array, x, y, word2find)
+            print("----------------------------------") 
+
+            # Check for either a row and a column of MAS or 2 verticals of MAS
+            # Combination of middle row and middle column
+            row = array[y+1][x:x+len(word2find)]
+            col = array[y][x+1] + array[y+1][x+1] + array[y+2][x+1]
+#array#array[y][x:x+len(word2find)]
+
+            print("rc value %s %s" % (row, col))
+            if (row == word2find or row[::-1] == word2find) and (col == word2find or col[::-1] == word2find): 
+                print("Found XMAS! ortho")
+                count += 1# We have an xmas
+
+            # Vert check
+            lv = array[y][x] + array[y+1][x+1] + array[y+2][x+2]
+            rv = array[y+2][x] + array[y+1][x+1] + array[y][x+2]
+            
+            print("lr value %s %s" % (lv, rv))
+            if (lv == word2find or lv[::-1] == word2find) and (rv == word2find or rv[::-1] == word2find): 
+                print("Found XMAS! slant")
+                count += 1# We have an xmas
+    return count
 
 def get_xmas_count(array):
     '''
@@ -113,6 +151,7 @@ def get_xmas_count(array):
 
 def main():
     input_file = sys.argv[1]
+    part = int(sys.argv[2])
     input_arr = [] 
     
     print("File selected is ", input_file)
@@ -121,19 +160,23 @@ def main():
     with open(input_file, "r") as file:
         for line in file:
             input_arr.append(line.rstrip('\n'))
-            print(line.rstrip('\n'))
+            #print(line.rstrip('\n'))
     
     search_box = [["."] * len(input_arr[0]) for _ in range(len(input_arr))]
     search_box = input_arr
-    #for y in range(0, len(input_arr)):
-    #    for x in range(0, len(input_arr[0])):
-    #        search_box = input_arr
+
     print("\n")
-    for y in range(0, len(search_box)):
-        for x in range(0, len(search_box[0])):
-            print(search_box[y][x], end="")
-        print("")
-    print("Xmas count is ", get_xmas_count(search_box))        
+    if part == 1:
+        print("doing part 1 ") 
+        for y in range(0, len(search_box)):
+            for x in range(0, len(search_box[0])):
+                print(search_box[y][x], end="")
+            print("")
+        print("Xmas count is ", get_xmas_count(search_box))
+    elif part == 2:
+        print("doing part 2 ") 
+        # Do pt2
+        print("Xmas count pt2 is ", get_xmas_count_pt2(search_box))        
 
 if __name__ == '__main__':
     main()
